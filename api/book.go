@@ -41,4 +41,11 @@ var Books = []Book{
 
 // BooksHandleFunc to be used as http.HandleFunc for Book API
 func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
+	b, err := json.Marshal(Books)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	w.Write(b)
 }
