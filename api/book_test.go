@@ -21,3 +21,43 @@ func TestBookFromJSON(t *testing.T) {
 	assert.Equal(t, Book{Title: "Cloud Native Go", Author: "M.-L. Reimer", ISBN: "0123456789"},
 		book, "Book JSON unmarshalling wrong.")
 }
+
+func TestAllBooks(t *testing.T) {
+	books := AllBooks()
+	assert.Len(t, books, 2, "Wrong number of books.")
+}
+
+func TestCreateNewBook(t *testing.T) {
+	book := Book{Title: "Test", Author: "Me", ISBN: "123456789"}
+	isbn, created := CreateBook(book)
+	assert.True(t, created, "Book was not created.")
+	assert.Equal(t, "123456789", isbn, "Wrong ISBN.")
+}
+
+func TestDoNotCreateExistingBook(t *testing.T) {
+	book := Book{ISBN: "1569319200"}
+	_, created := CreateBook(book)
+	assert.False(t, created, "Book was created.")
+}
+
+func TestUpdateExistingBook(t *testing.T) {
+	book := Book{
+		Title:       "Manga Stream",
+		Author:      "Haru El Rovix",
+		ISBN:        "1569319049",
+		Description: "Valar Morghulis",
+	}
+
+	updated := UpdateBook("1569319049", book)
+	assert.True(t, updated, "Book not updated.")
+
+	book, _ = GetBook("1569319049")
+	assert.Equal(t, "Manga Stream", book.Title, "Title not updated.")
+	assert.Equal(t, "Haru El Rovix", book.Author, "Author not updated.")
+	assert.Equal(t, "Valar Morghulis", book.Description, "Description not updated.")
+}
+
+func TestDeleteBook(t *testing.T) {
+	DeleteBook("1569319049")
+	assert.Len(t, AllBooks(), 2, "Wrong of number of books after delete.")
+}
