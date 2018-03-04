@@ -34,6 +34,11 @@ func FromJSON(data []byte) Book {
 	return book
 }
 
+var Books = []Book{
+	Book{Title: "Dragon Ball", Author: "Akira Toriyama", ISBN: "1569319200"},
+	Book{Title: "Yu Yu Hakusho", Author: "Yoshihiro Togashi", ISBN: "1569319049"},
+}
+
 // BooksHandleFunc to be used as http.HandleFunc for Book API
 func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 }
