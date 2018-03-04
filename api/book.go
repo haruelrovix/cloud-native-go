@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -59,12 +60,35 @@ func AllBooks() []Book {
 	return v
 }
 
+// Append book to the map
+func CreateBook(b Book) (string, bool) {
+	_, exists := books[b.ISBN]
+	if exists {
+		return "", false
+	}
+	books[b.ISBN] = b
+	return b.ISBN, true
+}
+
 // BooksHandleFunc to be used as http.HandleFunc for Book API
 func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 	switch method := r.Method; method {
 	case http.MethodGet:
 		books := AllBooks()
 		writeJSON(w, books)
+	case http.MethodPost:
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		book := FromJSON(body)
+		isbn, created := CreateBook(book)
+		if created {
+			w.Header().Add("Location", "/api/books/"+isbn)
+			w.WriteHeader(http.StatusCreated)
+		} else {
+			w.WriteHeader(http.StatusConflict)
+		}
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Unsupported request method."))
