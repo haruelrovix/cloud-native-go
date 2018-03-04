@@ -60,7 +60,7 @@ func AllBooks() []Book {
 	return v
 }
 
-// Append book to the map
+// CreateBook creates a new Book if it does not exist
 func CreateBook(b Book) (string, bool) {
 	_, exists := books[b.ISBN]
 	if exists {
@@ -83,6 +83,11 @@ func UpdateBook(isbn string, book Book) bool {
 		books[isbn] = book
 	}
 	return exists
+}
+
+// DeleteBook removes a book from the map by ISBN key
+func DeleteBook(isbn string) {
+	delete(books, isbn)
 }
 
 // BooksHandleFunc to be used as http.HandleFunc for Book API
@@ -134,6 +139,9 @@ func BookHandleFunc(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.WriteHeader(http.StatusNotFound)
 		}
+	case http.MethodDelete:
+		DeleteBook(isbn)
+		w.WriteHeader(http.StatusOK)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Unsupported request method."))
