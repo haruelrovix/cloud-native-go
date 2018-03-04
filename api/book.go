@@ -70,6 +70,12 @@ func CreateBook(b Book) (string, bool) {
 	return b.ISBN, true
 }
 
+// GetBook returns the book for a given ISBN
+func GetBook(isbn string) (Book, bool) {
+	book, found := books[isbn]
+	return book, found
+}
+
 // BooksHandleFunc to be used as http.HandleFunc for Book API
 func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 	switch method := r.Method; method {
@@ -95,8 +101,26 @@ func BooksHandleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func writeJSON(w http.ResponseWriter, books []Book) {
-	b, err := json.Marshal(books)
+// BookHandleFunc to be used as http.HandleFunc for Book API
+func BookHandleFunc(w http.ResponseWriter, r *http.Request) {
+	isbn := r.URL.Path[len("/api/books/"):]
+
+	switch method := r.Method; method {
+	case http.MethodGet:
+		book, found := GetBook(isbn)
+		if found {
+			writeJSON(w, book)
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Unsupported request method."))
+	}
+}
+
+func writeJSON(w http.ResponseWriter, i interface{}) {
+	b, err := json.Marshal(i)
 	if err != nil {
 		panic(err)
 	}
