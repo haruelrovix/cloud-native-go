@@ -8,9 +8,9 @@ import (
 // Book type with Name, Author and ISBN
 type Book struct {
 	// define the book
-	Title  string
-	Author string
-	ISBN   string
+	Title  string `json:"title"`
+	Author string `json:"author"`
+	ISBN   string `json:"isbn"`
 }
 
 // ToJSON to be used for marshalling of Book type
